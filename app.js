@@ -54,16 +54,31 @@ const state = {
    * @param {object} party Party object with name, date, location, description
    */
   async function createParty(party) {
+    
+    const isoDateTime = new Date(party.date).toISOString(); 
+  
     try {
       const response = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(party),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...party,
+          date: isoDateTime 
+        }),
       });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Error ${response.status}: ${errorData.message || 'Failed to create party'}`);
+      }
+  
       await response.json();
       render();
     } catch (error) {
       console.error('Error creating party:', error);
+      alert(`Error creating party: ${error.message}`);
     }
   }
   
